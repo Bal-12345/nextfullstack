@@ -1,17 +1,18 @@
 
-import { connectDB } from "../../../lib/mongodb";
-import Todo from "../../../models/Todo";
-export async function PUT(req, { params }) {
-  const { id } = params;
-  const { task, done } = await req.json();
-  await connectDB();
-  const updated = await Todo.findByIdAndUpdate(id, { task, done }, { new: true });
-  return Response.json(updated);
-}
 
-export async function DELETE(req, { params }) {
+import { connectDB } from "../../../../lib/mongodb";
+import Todo from "../../../../models/Todo";
+
+export async function DELETE(req, contextPromise) {
+  const { params } = await contextPromise;
   const { id } = params;
+
+  if (!id) {
+    return new Response(JSON.stringify({ error: "Missing ID" }), { status: 400 });
+  }
+
   await connectDB();
   await Todo.findByIdAndDelete(id);
-  return Response.json({ message: "Deleted" });
+
+  return new Response(JSON.stringify({ message: "Todo deleted" }), { status: 200 });
 }
